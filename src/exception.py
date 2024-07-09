@@ -7,7 +7,7 @@ def error_message_details(error,error_detail:sys):
         file_name,exc_tb.tb_lineno,str(error)
     )
 
-class CustomExeption(Exception):
+class CustomException(Exception):
     def __init__(self,error_message,error_detail:sys):
         super().__init__(error_message)
         self.error_message=error_message_details(error_message,error_detail=error_detail)
@@ -20,4 +20,4 @@ if __name__=="__main__":
         a=1/0
     except Exception as e:
         logging.info('Divide by zero')
-        raise CustomExeption(e,sys)
+        raise CustomException(e,sys)
