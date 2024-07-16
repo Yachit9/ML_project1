@@ -43,7 +43,6 @@ jobs:
           docker system prune -af
           sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost/lib/libxgboost.so
           sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost/*
-          sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -68,6 +67,17 @@ jobs:
           ECR_REPOSITORY: studentperformance
           IMAGE_TAG: latest
         run: |
+          # Create a Dockerfile for a multi-stage build
+          echo "FROM python:3.8-slim as builder" > Dockerfile
+          echo "RUN apt-get update && apt-get install -y build-essential" >> Dockerfile
+          echo "COPY requirements.txt ." >> Dockerfile
+          echo "RUN pip install --no-cache-dir -r requirements.txt" >> Dockerfile
+          echo "FROM python:3.8-slim" >> Dockerfile
+          echo "COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages" >> Dockerfile
+          echo "COPY . /app" >> Dockerfile
+          echo "WORKDIR /app" >> Dockerfile
+          echo "CMD [\"python\", \"application.py\"]" >> Dockerfile
+
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
