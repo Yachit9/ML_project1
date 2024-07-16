@@ -38,6 +38,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq unzip
 
+      - name: Free up disk space
+        run: |
+          docker system prune -af
+          sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost/lib/libxgboost.so
+          sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost/*
+          sudo rm -rf /usr/local/lib/python3.8/site-packages/xgboost
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
